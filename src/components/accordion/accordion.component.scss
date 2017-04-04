@@ -1,0 +1,40 @@
+.ngx-accordion {
+  display: block;
+  margin-bottom: 0 !important;
+
+  &.full-height {
+    height:100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .ngx-accordion-group {
+      flex: 0 0 0;
+      outline: 0;
+      transition: flex-basis 0.3s linear;
+      flex-basis: 0;
+      display:block;
+
+      &.active {
+        flex: 1 1 100%;
+        overflow-y: auto;
+      }
+    }
+  }
+
+  .ngx-accordion-group {
+    .panel-title {
+      cursor: pointer;
+
+      .icon-arrow-right,
+      .icon-arrow-down {
+        float:right;
+      }
+    }
+
+    .panel-collapse{
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+  }
+}
