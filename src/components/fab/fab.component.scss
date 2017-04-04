@@ -1,0 +1,69 @@
+.fab-menu {
+  box-sizing:border-box;
+  font-size:20px;
+  text-align:left;
+  z-index:1000;
+
+  .fab-item {
+    background:#22cf7d;
+    border-radius:100%;
+    width:40px;
+    height:40px;
+    margin-left:-40px;
+    position:absolute;
+    top:20px;
+    color:white;
+    text-align:center;
+    line-height:40px;
+    transform:translate3d(0,0,0);
+    transition:transform ease-out 200ms;
+    z-index: 998;
+  }
+
+  .fab-item {
+    transition-duration:180ms;
+
+    &:hover{
+      background:white;
+      color:#22cf7d;
+    }
+  }
+
+  .fab-toggle {
+    z-index: 999;
+    background:#106fe4;
+    border-radius:100%;
+    width:40px;
+    height:40px;
+    margin-left:-40px;
+    position:absolute;
+    top:20px;
+    color:white;
+    text-align:center;
+    line-height:45px;
+    transform:translate3d(0,0,0);
+    transition:transform ease-out 200ms;
+
+    transition-timing-function:cubic-bezier(0.175, 0.885, 0.320, 1.275);
+    transition-duration:400ms;
+    transform:scale(1.1,1.1) translate3d(0,0,0);
+    cursor:pointer;
+
+    &:hover {
+      transform:scale(1.2,1.2) translate3d(0,0,0);
+    }
+  }
+
+  .fab-item {
+    transition-timing-function:cubic-bezier(0.165, 0.840, 0.440, 1.000);
+  }
+
+  &.active {
+    .fab-toggle {
+      transition-timing-function:linear;
+      transition-duration:200ms;
+      transform:scale(0.8,0.8) translate3d(0,0,0);
+    }
+  }
+
+}
