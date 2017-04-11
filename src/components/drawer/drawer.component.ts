@@ -1,9 +1,8 @@
 import {
-  Component, Input, Output, EventEmitter, HostBinding, HostListener, ViewEncapsulation
-  // trigger, transition, animate, style, state
+  Component, Input, Output, EventEmitter, HostBinding, HostListener, ViewEncapsulation,
+  trigger, transition, animate, style, state
 } from '@angular/core';
 import { DrawerService } from './drawer.service';
-// import './drawer.scss';
 
 @Component({
   selector: 'ngx-drawer',
@@ -20,20 +19,29 @@ import { DrawerService } from './drawer.service';
     tabindex: '-1'
   },
   encapsulation: ViewEncapsulation.None,
-  styleUrls: ['./drawer.component.scss']
-  /*
-  // see: https://github.com/angular/angular/issues/13293
+  styleUrls: ['./drawer.component.scss'],
   animations: [
     trigger('drawerTransition', [
+      state('left', style({
+        transform: 'translateX(-100%)'
+      })),
+      state('bottom', style({
+        transform: 'translateY(-100%)'
+      })),
+      transition('void => left', [
+        animate(200, style({ transform: 'translateX(-100%)' }))
+      ]),
+      transition('void => bottom', [
+        animate(200, style({ transform: 'translateY(-100%)' }))
+      ]),
       transition('left => void', [
-        animate(300, style({ transform: 'translateX(100%)' }))
+        animate(200, style({ transform: 'translateX(100%)' }))
       ]),
       transition('bottom => void', [
-        animate(300, style({ transform: 'translateY(100%)' }))
+        animate(200, style({ transform: 'translateY(100%)' }))
       ])
     ])
   ]
-  */
 })
 export class DrawerComponent {
 
@@ -51,7 +59,7 @@ export class DrawerComponent {
    * @type {string}
    * @memberOf DrawerComponent
    */
-  // @HostBinding('@drawerTransition')
+  @HostBinding('@drawerTransition')
   @Input() direction: string;
 
   /**
@@ -67,22 +75,7 @@ export class DrawerComponent {
    * 
    * @memberOf DrawerComponent
    */
-  @Input() 
-  set size(val: number) {
-    this._size = val;
-    this.setDimensions(val);
-  }
-
-  /**
-   * Gets the size of the drawer
-   * 
-   * @readonly
-   * @type {number}
-   * @memberOf DrawerComponent
-   */
-  get size(): number {
-    return this._size;
-  }
+  @Input() size: number;
 
   /**
    * Zindex of the drawer
@@ -108,31 +101,39 @@ export class DrawerComponent {
   @Output() close = new EventEmitter();
 
   /**
-   * Tranform direction of the drawer
-   * 
-   * @type {string}
-   * @memberOf DrawerComponent
-   */
-  @HostBinding('style.transform')
-  transform: string;
-
-  /**
    * Drawer width calculation
-   * 
-   * @type {string}
-   * @memberOf DrawerComponent
+   * @return {String} percentage width
    */
   @HostBinding('style.width')
-  widthSize: any;
+  get widthSize() {
+    if(this.isLeft) {
+      const width = window.innerWidth;
+      const innerWidth = this.size === undefined ? width : this.size;
+      const widthPercent = (innerWidth / 100) * width;
+      const newWidth = Math.ceil(widthPercent);
+      return `${newWidth}px`;
+    }
+
+    return '100%';
+  }
 
   /**
    * Drawer height calculation
-   * 
-   * @type {string}
-   * @memberOf DrawerComponent
+   * @return {String} percentage height
    */
    @HostBinding('style.height')
-   heightSize: any;
+   get heightSize() {
+    if(this.isBottom) {
+      const height = window.innerHeight;
+      const size = this.size;
+      const innerHeight = this.size === undefined ? height : this.size;
+      const heightPercent = (innerHeight / 100) * height;
+      const newHeight = Math.ceil(heightPercent);
+      return `${newHeight}px`;
+    }
+
+    return '100%';
+  }
 
   /**
    * Is the drawer a left opening drawer
@@ -141,7 +142,6 @@ export class DrawerComponent {
    * @type {boolean}
    * @memberOf DrawerComponent
    */
-  // @HostBinding('class.left-drawer')
   get isLeft(): boolean {
     return this.direction === 'left';
   }
@@ -169,61 +169,11 @@ export class DrawerComponent {
    * @type {boolean}
    * @memberOf DrawerComponent
    */
-  // @HostBinding('class.bottom-drawer')
   get isBottom(): boolean {
     return this.direction === 'bottom';
   }
 
-  private _size: number;
-
   constructor(private drawerManager: DrawerService) { }
-
-  /**
-   * Sets the dimensions
-   * 
-   * @param {number} size
-   * 
-   * @memberOf DrawerComponent
-   */
-  setDimensions(size: number): void {
-    const winWidth = window.innerWidth;
-    const winHeight = window.innerHeight;
-    let height;
-    let width;
-    let transform;
-
-    if(this.isLeft) {
-      if(size) {
-        const innerWidth = size || winWidth;
-        const widthPercent = (innerWidth / 100) * winWidth;
-        const newWidth = Math.ceil(widthPercent);
-
-        height = '100%';
-        width = `${newWidth}px`;
-        transform = `translate(-${width}, 0px)`;
-      } else {
-        transform = 'translate(100%, 0)';
-      }
-    } else if(this.isBottom) {
-      if(size) {
-        const innerHeight = size || winHeight;
-        const heightPercent = (innerHeight / 100) * winHeight;
-        const newHeight = Math.ceil(heightPercent);
-
-        width = '100%';
-        height = `${newHeight}px`;
-        transform = `translate(0px, -${height})`;
-      } else {
-        transform = 'translate(0, 100%)';
-      }
-    }
-
-    setTimeout(() => {
-      this.heightSize = height;
-      this.widthSize = width;
-      this.transform = transform;
-    }, 10);
-  }
 
   /**
    * Exit listener

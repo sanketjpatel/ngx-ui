@@ -32,7 +32,7 @@ export class DrawerService extends InjectionRegisteryService {
   destroy(component): void {
     // race case clicking fast errors here
     if(component && component.instance) {
-      component.instance.size = 0;
+      component.instance.direction = undefined;
     }
 
     setTimeout(() => {
