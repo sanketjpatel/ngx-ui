@@ -1,7 +1,10 @@
-import { Directive, Input, Output, EventEmitter, ChangeDetectionStrategy, HostListener } from '@angular/core';
+import { Directive, ElementRef, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/takeUntil';
+import 'rxjs/add/observable/fromEvent';
+import 'rxjs/add/operator/takeUntil';
+import 'rxjs/add/operator/switchMap';
 
 @Directive({
   selector: '[ngxSplitHandle]',
@@ -12,33 +15,23 @@ import 'rxjs/add/operator/takeUntil';
 })
 export class SplitHandleDirective {
 
-  @Output() drag = new EventEmitter();
+  @Output() drag: Observable<{ x: number, y: number }>;
 
-  private mouseup$: Subscription;
-  private mousemove$: Subscription;
+  constructor(ref: ElementRef) {
+    const getMouseEventPosition = (event: MouseEvent) => ({ x: event.movementX, y: event.movementY });
 
-  @HostListener('mousedown', ['$event'])
-  onMouseDown(event: MouseEvent): void {
-    const mouseDownPos = { x: event.clientX, y: event.clientY };
+    const mousedown$ = Observable.fromEvent(ref.nativeElement, 'mousedown').map(getMouseEventPosition);
+    const mousemove$ = Observable.fromEvent(document, 'mousemove').map(getMouseEventPosition);
+    const mouseup$ = Observable.fromEvent(document, 'mouseup');
 
-    const mouseup = Observable.fromEvent(document, 'mouseup');
-    mouseup.subscribe((ev: MouseEvent) => this.onMouseup(ev));
-
-    this.mousemove$ = Observable
-      .fromEvent(document, 'mousemove')
-      .takeUntil(mouseup)
-      .subscribe((ev: MouseEvent) => this.onMouseMove(ev, mouseDownPos));
-  }
-
-  onMouseMove(event: MouseEvent, mouseDownPos: { x: number, y: number }): void {
-    const x = event.clientX - mouseDownPos.x;
-    const y = event.clientY - mouseDownPos.y;
-    this.drag.emit({ x, y });
-  }
-
-  onMouseup(ev): void {
-    this.mouseup$.unsubscribe();
-    this.mousemove$.unsubscribe();
+    this.drag = mousedown$
+      .switchMap(mousedown =>
+        mousemove$.map(mousemove => ({
+          x: mousemove.x,
+          y: mousemove.y
+        }))
+        .takeUntil(mouseup$)
+      );
   }
 
 }
